@@ -1,0 +1,19 @@
+{
+  "name": "Registro Anestesia",
+  "short_name": "Anestesia",
+  "description": "Registro de procedimientos anestésicos",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f3460",
+  "theme_color": "#0f3460",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

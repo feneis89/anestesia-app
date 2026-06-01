@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Registro Anestesia</title>
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f3460">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Anestesia">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     PANTALLA 1 — HOME (Lista de casos + Stats)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-home" class="screen screen-visible">
+
+  <header class="app-header">
+    <div class="header-top">
+      <div class="header-title">🩺 Registro Anestesia</div>
+      <div class="sync-badge">
+        <div class="sync-dot"></div>
+        <span class="sync-label">Listo</span>
+      </div>
+    </div>
+    <nav class="tab-nav" id="home-nav">
+      <button class="tab-btn active" data-tab="lista">📋 Casos</button>
+      <button class="tab-btn"        data-tab="stats">📊 Stats</button>
+    </nav>
+  </header>
+
+  <main class="app-main" id="home-main">
+
+    <!-- ── Tab: Lista de casos ── -->
+    <div class="tab-panel active" id="tab-lista">
+      <div id="pending-banner" class="pending-banner"></div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="case-search" placeholder="Buscar procedimiento, especialidad…" autocomplete="off">
+      </div>
+      <div id="case-list"></div>
+    </div>
+
+    <!-- ── Tab: Stats ── -->
+    <div class="tab-panel" id="tab-stats">
+      <div id="stats-empty" style="text-align:center;padding:60px 20px 40px">
+        <div style="font-size:52px;margin-bottom:14px">📊</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:8px">Sin casos registrados aún</div>
+        <div class="text-muted">Registra tu primer caso para ver estadísticas</div>
+      </div>
+      <div id="stats-content" style="display:none">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">Total casos</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-mes">—</div><div class="stat-label">Este mes</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-compl">—</div><div class="stat-label">Con complicación</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-regional">—</div><div class="stat-label">Técnica regional</div></div>
+        </div>
+        <div class="card"><div class="card-header"><span>📅 Casos — últimos 6 meses</span></div><div class="card-body"><div id="chart-meses"></div></div></div>
+        <div class="card"><div class="card-header"><span>💉 Técnicas anestésicas</span></div><div class="card-body"><div id="chart-tecnicas"></div></div></div>
+        <div class="card"><div class="card-header"><span>🏥 Procedimientos más frecuentes</span></div><div class="card-body"><div id="chart-procedimientos"></div></div></div>
+        <div class="card"><div class="card-header"><span>🎯 Bloqueos más realizados</span></div><div class="card-body"><div id="chart-bloqueos"></div></div></div>
+        <div class="card"><div class="card-header"><span>🫁 Dispositivos de vía aérea</span></div><div class="card-body"><div id="chart-via-aerea"></div></div></div>
+        <div class="card"><div class="card-header"><span>🔵 Detalle de intubación (TOT)</span></div><div class="card-body"><div id="chart-tot"></div></div></div>
+        <div class="card"><div class="card-header"><span>📈 Monitorización invasiva</span></div><div class="card-body"><div id="chart-monitorizacion"></div></div></div>
+        <div class="card"><div class="card-header"><span>🚨 Vía aérea difícil (% del total)</span></div><div class="card-body"><div id="chart-vad"></div></div></div>
+        <div class="card"><div class="card-header"><span>⚠️ Complicaciones frecuentes</span></div><div class="card-body"><div id="chart-complicaciones"></div></div></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    <button class="btn btn-primary btn-full" id="btn-nuevo-caso">＋ Registrar nuevo caso</button>
+  </footer>
+
+</div><!-- /screen-home -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PANTALLA 2 — FORMULARIO (4 tabs del caso)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-form" class="screen">
+
+  <header class="app-header">
+    <div class="header-top">
+      <button class="btn-back" id="btn-back">← Volver</button>
+      <div class="header-title">Caso <span id="case-number">#001</span></div>
+      <div class="sync-badge">
+        <div class="sync-dot"></div>
+        <span class="sync-label">Listo</span>
+      </div>
+    </div>
+    <nav class="tab-nav" id="form-nav">
+      <button class="tab-btn active" data-tab="paciente">Paciente</button>
+      <button class="tab-btn"        data-tab="anestesia">Anestesia</button>
+      <button class="tab-btn"        data-tab="viaerea">Vía aérea</button>
+      <button class="tab-btn"        data-tab="evolucion">Evolución</button>
+    </nav>
+  </header>
+
+  <main class="app-main" id="form-main">
+
+<!-- ════ TAB: PACIENTE ════ -->
+<div class="tab-panel active" id="tab-paciente">
+
+  <!-- Datos generales -->
+  <div class="card">
+    <div class="card-header collapsible"><span>📋 Datos generales</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha <span class="req">*</span></label>
+          <input type="date" id="fecha" name="fecha">
+        </div>
+        <div class="form-group">
+          <label>Hora inicio</label>
+          <input type="time" id="hora-inicio" name="horaInicio">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hora fin</label>
+          <input type="time" id="hora-fin" name="horaFin">
+        </div>
+        <div class="form-group">
+          <label>Duración</label>
+          <input type="text" id="duracion" name="duracion" readonly placeholder="auto">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paciente -->
+  <div class="card">
+    <div class="card-header collapsible"><span>👤 Paciente</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Edad <span class="req">*</span></label>
+          <input type="number" id="edad" name="edad" min="0" max="120" placeholder="años">
+        </div>
+        <div class="form-group">
+          <label>Sexo</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="sexo" value="Hombre"><span>H</span></label>
+            <label class="radio-pill"><input type="radio" name="sexo" value="Mujer"><span>M</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Peso (kg)</label>
+          <input type="number" id="peso" name="peso" min="1" max="300" step="0.1" placeholder="70">
+        </div>
+        <div class="form-group">
+          <label>Talla (cm)</label>
+          <input type="number" id="talla" name="talla" min="30" max="250" placeholder="170">
+        </div>
+        <div class="form-group">
+          <label>IMC</label>
+          <input type="text" id="imc" name="imc" readonly placeholder="auto">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>ASA <span class="req">*</span></label>
+        <div class="asa-group">
+          <label class="asa-pill i"><input type="radio" name="asa" value="I"><span>I</span></label>
+          <label class="asa-pill ii"><input type="radio" name="asa" value="II"><span>II</span></label>
+          <label class="asa-pill iii"><input type="radio" name="asa" value="III"><span>III</span></label>
+          <label class="asa-pill iv"><input type="radio" name="asa" value="IV"><span>IV</span></label>
+          <label class="asa-pill v"><input type="radio" name="asa" value="V"><span>V</span></label>
+          <label class="asa-pill e"><input type="radio" name="asa" value="E"><span>E</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Antecedentes médicos</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" class="antec-check" value="HTA"><span class="check-label">HTA</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="DM"><span class="check-label">DM</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Obesidad"><span class="check-label">Obesidad</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Cardiopatía isquémica"><span class="check-label">Cardiopatía isquémica</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Insuficiencia cardíaca"><span class="check-label">Insuficiencia cardíaca</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="FA"><span class="check-label">FA</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="EPOC"><span class="check-label">EPOC</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Asma"><span class="check-label">Asma</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="SAOS"><span class="check-label">SAOS</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="IRC"><span class="check-label">IRC</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Ictus previo"><span class="check-label">Ictus previo</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Fumador activo"><span class="check-label">Fumador activo</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Enolismo"><span class="check-label">Enolismo</span></label>
+        </div>
+        <input type="text" id="antec-otros" name="antecOtros" placeholder="Otros antecedentes…" style="margin-top:8px">
+      </div>
+      <div class="form-group">
+        <label>Alergias</label>
+        <label class="check-item ok" style="margin-bottom:8px">
+          <input type="checkbox" id="namc-check">
+          <span class="check-label">NAMC — No alergias a medicamentos conocidas</span>
+        </label>
+        <input type="text" id="alergias" name="alergias" placeholder="Látex, penicilina, AINEs, contrastes…">
+      </div>
+    </div>
+  </div>
+
+  <!-- Medicación especial & Dispositivos -->
+  <div class="card">
+    <div class="card-header collapsible"><span>💊 Medicación especial &amp; Dispositivos</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Anticoagulación</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Acenocumarol (Sintrom)"><span class="check-label">Acenocumarol (Sintrom)</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="NACO"><span class="check-label">NACO</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="HBPM terapéutica"><span class="check-label">HBPM terapéutica</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Heparina sódica iv"><span class="check-label">Heparina sódica iv</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Antiagregación</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" class="medic-check" value="AAS"><span class="check-label">AAS</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Clopidogrel"><span class="check-label">Clopidogrel</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Ticagrelor"><span class="check-label">Ticagrelor</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Prasugrel"><span class="check-label">Prasugrel</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Doble antiagregación"><span class="check-label">Doble antiagregación</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Dispositivos</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Marcapasos"><span class="check-label">Marcapasos</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="DAI"><span class="check-label">DAI</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Prótesis valvular"><span class="check-label">Prótesis valvular</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Stent coronario (<12m)"><span class="check-label">Stent reciente</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Bypass coronario previo"><span class="check-label">Bypass coronario</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Neuroestimulador medular"><span class="check-label">Neuroestimulador</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Otros (corticoides, inmunosupresores…)</label>
+        <input type="text" id="medic-otros" name="medicOtros" placeholder="Especificar…">
+      </div>
+    </div>
+  </div>
+
+  <!-- Intervención -->
+  <div class="card">
+    <div class="card-header collapsible"><span>🏥 Intervención</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Especialidad <span class="req">*</span></label>
+        <select id="especialidad" name="especialidad">
+          <option value="">— Seleccionar —</option>
+          <option>Cirugía General y Digestivo</option><option>Traumatología y C.O.T.</option>
+          <option>Ginecología y Obstetricia</option><option>Urología</option>
+          <option>ORL</option><option>Neurocirugía</option>
+          <option>Cirugía Cardíaca</option><option>Cirugía Vascular</option>
+          <option>Cirugía Torácica</option><option>Cirugía Maxilofacial</option>
+          <option>Oftalmología</option><option>Cirugía Plástica y Reparadora</option>
+          <option>Cirugía Pediátrica</option><option>Endoscopia Digestiva</option>
+          <option>Radiología Intervencionista</option><option>Cardiología Intervencionista</option>
+          <option>Unidad de Dolor</option><option>Otra</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Procedimiento <span class="req">*</span></label>
+        <input type="text" id="procedimiento" name="procedimiento" list="procedimientos-list"
+          placeholder="Ej: Colecistectomía laparoscópica">
+        <datalist id="procedimientos-list">
+          <option>Colecistectomía laparoscópica</option><option>Apendicectomía</option>
+          <option>Hernioplastia inguinal</option><option>Colectomía laparoscópica</option>
+          <option>Gastrectomía</option><option>Cirugía bariátrica</option>
+          <option>Artroplastia total de rodilla</option><option>Artroplastia total de cadera</option>
+          <option>Artroscopia de rodilla</option><option>Osteosíntesis de cadera</option>
+          <option>Histerectomía laparoscópica</option><option>Cesárea</option>
+          <option>Miomectomía</option><option>RTU vesical</option>
+          <option>Prostatectomía radical</option><option>Nefrectomía laparoscópica</option>
+          <option>Amigdalectomía</option><option>Septoplastia</option>
+          <option>FESS</option><option>Craneotomía</option>
+          <option>Discectomía lumbar</option><option>Laminectomía</option>
+          <option>CABG</option><option>Recambio valvular</option>
+          <option>Bypass femoropoplíteo</option><option>EVAR</option>
+          <option>Facoemulsificación</option><option>CPRE</option>
+          <option>Colonoscopia</option><option>Gastroscopia</option>
+        </datalist>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Urgencia</label>
+          <select id="urgencia" name="urgencia">
+            <option value="Programada">Programada</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Emergencia">Emergencia</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Posición</label>
+          <select id="posicion" name="posicion">
+            <option value="">— Seleccionar —</option>
+            <option>Decúbito supino</option><option>Decúbito prono</option>
+            <option>Lateral derecho</option><option>Lateral izquierdo</option>
+            <option>Litotomía</option><option>Trendelenburg</option>
+            <option>Anti-Trendelenburg</option><option>Silla de montar</option>
+            <option>Sedestación</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-paciente -->
+
+
+<!-- ════ TAB: ANESTESIA ════ -->
+<div class="tab-panel" id="tab-anestesia">
+
+  <!-- AG -->
+  <div class="card technique-card" id="tc-general">
+    <label class="technique-header">
+      <input type="checkbox" class="technique-toggle-cb" id="toggle-general" value="Anestesia General">
+      <div class="toggle-switch"></div>
+      <div class="technique-info">
+        <div class="technique-name">💉 Anestesia General</div>
+        <div class="technique-hint">Propofol · Opioides · Relajantes · Sevoflurano/TIVA</div>
+      </div>
+    </label>
+    <div class="technique-body">
+      <div class="card-body">
+        <div class="drug-section ag-induccion">
+          <div class="drug-section-title">Inducción</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketamina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Etomidato</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Midazolam</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tiopental</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína (inducción)</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        </div>
+        <div class="drug-section ag-opioides">
+          <div class="drug-section-title">Opioides sistémicos</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo</label><input type="text" class="drug-dose" placeholder="mcg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sufentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Morfina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tramadol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Metadona</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        </div>
+        <div class="drug-section ag-relajantes">
+          <div class="drug-section-title">Relajantes musculares</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Succinilcolina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Rocuronio</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Atracurio</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cisatracurio</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Vecuronio</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        </div>
+        <div class="drug-section ag-mantenimiento">
+          <div class="drug-section-title">Mantenimiento</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sevoflurano</label><input type="text" class="drug-dose" placeholder="% CAM" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Desflurano</label><input type="text" class="drug-dose" placeholder="% CAM" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Isoflurano</label><input type="text" class="drug-dose" placeholder="% CAM" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TIVA</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TIVA</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína (mantenimiento)</label><input type="text" class="drug-dose" placeholder="mg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">N₂O</label><input type="text" class="drug-dose" placeholder="%" hidden></div>
+        </div>
+        <div class="drug-section ag-reversores">
+          <div class="drug-section-title">Reversores</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sugammadex</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Neostigmina + Atropina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Naloxona</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Flumazenilo</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Espinal -->
+  <div class="card technique-card" id="tc-espinal">
+    <label class="technique-header">
+      <input type="checkbox" class="technique-toggle-cb" id="toggle-espinal" value="Anestesia Espinal">
+      <div class="toggle-switch"></div>
+      <div class="technique-info">
+        <div class="technique-name">🧪 Anestesia Espinal</div>
+        <div class="technique-hint">Nivel · Aguja · Fármacos intratecales</div>
+      </div>
+    </label>
+    <div class="technique-body">
+      <div class="tech-details">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nivel</label>
+            <select id="espinal-nivel" name="espinalNivel">
+              <option value="">—</option><option>L1-L2</option><option>L2-L3</option>
+              <option>L3-L4</option><option>L4-L5</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Aguja</label>
+            <select id="espinal-aguja" name="espinalAguja">
+              <option value="">—</option>
+              <option>Pajunk 25G</option><option>Pajunk 27G</option><option>Pajunk 29G</option>
+              <option>Spinocan 25G</option><option>Spinocan 26G</option><option>Spinocan 27G</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Posición punción</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="espinal-posicion" value="Sentado"><span>Sentado</span></label>
+            <label class="radio-pill"><input type="radio" name="espinal-posicion" value="Lateral D"><span>Lateral D</span></label>
+            <label class="radio-pill"><input type="radio" name="espinal-posicion" value="Lateral I"><span>Lateral I</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drug-section espinal-farmacos">
+          <div class="drug-section-title">Fármacos intratecales</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína hiperbara 0.5%</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína isobara 0.5%</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Levobupivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo IT</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sufentanilo IT</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Morfina IT</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Clonidina IT</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina IT</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Epidural -->
+  <div class="card technique-card" id="tc-epidural">
+    <label class="technique-header">
+      <input type="checkbox" class="technique-toggle-cb" id="toggle-epidural" value="Anestesia Epidural">
+      <div class="toggle-switch"></div>
+      <div class="technique-info">
+        <div class="technique-name">🩹 Anestesia Epidural</div>
+        <div class="technique-hint">Nivel · Catéter · Fármacos epidurales</div>
+      </div>
+    </label>
+    <div class="technique-body">
+      <div class="tech-details">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nivel</label>
+            <input type="text" id="epidural-nivel" name="epiduralNivel" placeholder="Ej: T8-T9, L2-L3">
+          </div>
+          <div class="form-group">
+            <label>Aguja</label>
+            <select id="epidural-aguja" name="epiduralAguja">
+              <option value="">—</option>
+              <option>Tuohy 16G</option><option>Tuohy 17G</option>
+              <option>Tuohy 18G</option><option>CSE / Needle-through-needle</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="check-grid cols1">
+            <label class="check-item"><input type="checkbox" id="epidural-cateter" value="con catéter"><span class="check-label">Con catéter epidural</span></label>
+            <label class="check-item"><input type="checkbox" id="epidural-test" value="test dosis +"><span class="check-label">Test dosis positivo</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drug-section epidural-farmacos">
+          <div class="drug-section-title">Fármacos epidurales</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.375%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.75%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína 0.25%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Levobupivacaína 0.25%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cloroprocaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cloroprocaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo (epidural)</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sufentanilo (epidural)</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Morfina (epidural)</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Clonidina (epidural)</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina (epidural)</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloqueo 1 -->
+  <div class="card technique-card" id="tc-bloqueo">
+    <label class="technique-header">
+      <input type="checkbox" class="technique-toggle-cb" id="toggle-bloqueo" value="Bloqueo periférico/pared">
+      <div class="toggle-switch"></div>
+      <div class="technique-info">
+        <div class="technique-name">🎯 Bloqueo periférico / pared</div>
+        <div class="technique-hint">Nervio · Eco · Anestésico local</div>
+      </div>
+    </label>
+    <div class="technique-body">
+      <div class="tech-details">
+        <div class="form-group">
+          <label>Nervio / Área</label>
+          <input type="text" id="bloqueo-nervio" list="nervios-list" placeholder="Ej: Plexo braquial, TAP bilateral…">
+          <datalist id="nervios-list">
+            <option>Plexo braquial (interescalénico)</option><option>Plexo braquial (supraclavicular)</option>
+            <option>Plexo braquial (infraclavicular)</option><option>Plexo braquial (axilar)</option>
+            <option>Nervio femoral</option><option>Nervio ciático (subglúteo)</option>
+            <option>Nervio ciático (poplíteo)</option><option>Aductor (n. safeno)</option>
+            <option>TAP bilateral</option><option>TAP unilateral</option>
+            <option>Quadratus Lumborum (QL)</option><option>Erector spinae (ESP)</option>
+            <option>PECS I / II</option><option>Serrato</option>
+            <option>Paravertebral torácico</option><option>Intercostal</option>
+            <option>Ilioinguinal / Iliohipogástrico</option><option>Bloqueo tobillo</option>
+            <option>Fascia Iliaca</option>
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label>Técnica guía</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="bloqueo-tecnica" value="Ecografía"><span>Eco</span></label>
+            <label class="radio-pill"><input type="radio" name="bloqueo-tecnica" value="Neuroestimulación"><span>Neuroestim.</span></label>
+            <label class="radio-pill"><input type="radio" name="bloqueo-tecnica" value="Eco + Neuroestim."><span>Eco+Neuroestim.</span></label>
+            <label class="radio-pill"><input type="radio" name="bloqueo-tecnica" value="Anatómica"><span>Anatómica</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="check-item" style="display:inline-flex">
+            <input type="checkbox" id="bloqueo-cateter" value="con catéter perineural">
+            <span class="check-label">Catéter perineural</span>
+          </label>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drug-section bloqueo-farmacos">
+          <div class="drug-section-title">Anestésico local</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.375%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.75%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína 0.25%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Levobupivacaína 0.25%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Levobupivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Mepivacaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Mepivacaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cloroprocaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cloroprocaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-section-title" style="margin-top:10px">Coadyuvantes</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexametasona perineural</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina perineural</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Adrenalina perineural</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloqueo 2 -->
+  <div class="card technique-card" id="tc-bloqueo2">
+    <label class="technique-header">
+      <input type="checkbox" class="technique-toggle-cb" id="toggle-bloqueo2" value="Bloqueo periférico/pared 2">
+      <div class="toggle-switch"></div>
+      <div class="technique-info">
+        <div class="technique-name">🎯 Bloqueo periférico / pared 2</div>
+        <div class="technique-hint">Segundo bloqueo del mismo caso</div>
+      </div>
+    </label>
+    <div class="technique-body">
+      <div class="tech-details">
+        <div class="form-group">
+          <label>Nervio / Área</label>
+          <input type="text" id="bloqueo2-nervio" list="nervios-list" placeholder="Ej: Nervio ciático, ESP…">
+        </div>
+        <div class="form-group">
+          <label>Técnica guía</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="bloqueo2-tecnica" value="Ecografía"><span>Eco</span></label>
+            <label class="radio-pill"><input type="radio" name="bloqueo2-tecnica" value="Neuroestimulación"><span>Neuroestim.</span></label>
+            <label class="radio-pill"><input type="radio" name="bloqueo2-tecnica" value="Eco + Neuroestim."><span>Eco+Neuroestim.</span></label>
+            <label class="radio-pill"><input type="radio" name="bloqueo2-tecnica" value="Anatómica"><span>Anatómica</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="check-item" style="display:inline-flex">
+            <input type="checkbox" id="bloqueo2-cateter" value="con catéter perineural">
+            <span class="check-label">Catéter perineural</span>
+          </label>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drug-section bloqueo2-farmacos">
+          <div class="drug-section-title">Anestésico local</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.375%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ropivacaína 0.75%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína 0.25%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Bupivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Levobupivacaína 0.25%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Levobupivacaína 0.5%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Mepivacaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Mepivacaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cloroprocaína 1%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Cloroprocaína 2%</label><input type="text" class="drug-dose" placeholder="ml" hidden></div>
+          <div class="drug-section-title" style="margin-top:10px">Coadyuvantes</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexametasona perineural</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina perineural</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Adrenalina perineural</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sedación -->
+  <div class="card technique-card" id="tc-sedacion">
+    <label class="technique-header">
+      <input type="checkbox" class="technique-toggle-cb" id="toggle-sedacion" value="Sedación">
+      <div class="toggle-switch"></div>
+      <div class="technique-info">
+        <div class="technique-name">😴 Sedación</div>
+        <div class="technique-hint">Profunda · Moderada · Superficial</div>
+      </div>
+    </label>
+    <div class="technique-body">
+      <div class="tech-details">
+        <div class="form-group">
+          <label>Nivel de sedación</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="sedacion-nivel" value="Profunda"><span>Profunda</span></label>
+            <label class="radio-pill"><input type="radio" name="sedacion-nivel" value="Moderada"><span>Moderada</span></label>
+            <label class="radio-pill"><input type="radio" name="sedacion-nivel" value="Superficial"><span>Superficial</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drug-section sedacion-farmacos">
+          <div class="drug-section-title">Fármacos sedación</div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol</label><input type="text" class="drug-dose" placeholder="mg/mcg/kg/min" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Midazolam</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina</label><input type="text" class="drug-dose" placeholder="mcg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketamina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo</label><input type="text" class="drug-dose" placeholder="mcg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tramadol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analgesia & Coadyuvantes -->
+  <div class="card collapsed">
+    <div class="card-header collapsible"><span>💊 Analgesia &amp; Coadyuvantes</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="drug-section otros-analgesia">
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Paracetamol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Metamizol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketorolaco</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexketoprofeno</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexametasona iv</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ondansetrón</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Droperidol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketamina (analgesia)</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína iv (infusión)</label><input type="text" class="drug-dose" placeholder="mg/kg/h" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Magnesio iv</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ácido tranexámico</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Clonidina iv</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina iv</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vasoactivos -->
+  <div class="card collapsed">
+    <div class="card-header collapsible"><span>💓 Vasoactivos</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="drug-section otros-vasoactivos">
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Efedrina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fenilefrina</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Noradrenalina</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Adrenalina</label><input type="text" class="drug-dose" placeholder="mg / mcg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Atropina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Metaraminol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Vasopresina</label><input type="text" class="drug-dose" placeholder="UI" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dopamina</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dobutamina</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Nitroglicerina</label><input type="text" class="drug-dose" placeholder="mcg/min" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Labetalol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Urapidilo</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-anestesia -->
+
+
+<!-- ════ TAB: VÍA AÉREA ════ -->
+<div class="tab-panel" id="tab-viaerea">
+  <div class="card">
+    <div class="card-header collapsible"><span>🫁 Vía aérea</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Dispositivo</label>
+        <select id="dispositivo-via" name="dispositivoVia">
+          <option value="">— Seleccionar —</option>
+          <option>No precisa (AR/Sedación)</option>
+          <option>Mascarilla facial</option>
+          <option>LMA AuraGain</option>
+          <option>LMA i-gel</option>
+          <option>TOT oral</option>
+          <option>TOT nasal</option>
+          <option>Tubo doble luz</option>
+          <option>Awake FOI</option>
+          <option>Traqueotomía</option>
+        </select>
+      </div>
+      <div class="intubation-conditional conditional">
+        <div class="form-group">
+          <label>Técnica</label>
+          <select id="tecnica-intubacion" name="tecnicaIntubacion">
+            <option value="">— Seleccionar —</option>
+            <option>Laringoscopio directo</option><option>Videolaringoscopio</option>
+            <option>Fibrobroncoscopio</option><option>Bougie / Introductor</option>
+            <option>Stylet óptico</option><option>Combinada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Intentos</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="intentos" value="1"><span>1</span></label>
+            <label class="radio-pill"><input type="radio" name="intentos" value="2"><span>2</span></label>
+            <label class="radio-pill"><input type="radio" name="intentos" value="3"><span>3</span></label>
+            <label class="radio-pill"><input type="radio" name="intentos" value=">3"><span>>3</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cormack-Lehane</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="cormack" value="I"><span>I</span></label>
+            <label class="radio-pill"><input type="radio" name="cormack" value="IIA"><span>IIA</span></label>
+            <label class="radio-pill"><input type="radio" name="cormack" value="IIB"><span>IIB</span></label>
+            <label class="radio-pill"><input type="radio" name="cormack" value="III"><span>III</span></label>
+            <label class="radio-pill"><input type="radio" name="cormack" value="IV"><span>IV</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Vía aérea difícil (VAD)</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" name="vad" value="VAD prevista"><span class="check-label">Prevista</span></label>
+          <label class="check-item"><input type="checkbox" name="vad" value="VAD no prevista"><span class="check-label">No prevista</span></label>
+          <label class="check-item"><input type="checkbox" name="vad" value="No intubable"><span class="check-label">No intubable</span></label>
+          <label class="check-item"><input type="checkbox" name="vad" value="No ventilable"><span class="check-label">No ventilable</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header collapsible"><span>📊 Monitorización especial</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="check-grid">
+        <label class="check-item"><input type="checkbox" class="monit-check" value="BIS / Entropía"><span class="check-label">BIS / Entropía</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="TOF cuantitativo"><span class="check-label">TOF cuantitativo</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Temperatura"><span class="check-label">Temperatura</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Arterial invasiva"><span class="check-label">Arterial invasiva</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="CVC"><span class="check-label">CVC</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="PVC"><span class="check-label">PVC</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Ecocardiografía ETE"><span class="check-label">ETE</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="NIRS cerebral"><span class="check-label">NIRS cerebral</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="PiCCO"><span class="check-label">PiCCO</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Swan-Ganz"><span class="check-label">Swan-Ganz</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Neuromonit. EEG/PESS"><span class="check-label">Neuromonit. EEG/PESS</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Clearsight"><span class="check-label">Clearsight</span></label>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-viaerea -->
+
+
+<!-- ════ TAB: EVOLUCIÓN ════ -->
+<div class="tab-panel" id="tab-evolucion">
+  <div class="card">
+    <div class="card-header collapsible"><span>⚠️ Complicaciones</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="drug-section-title">Hemodinámicas</div>
+      <div class="check-grid" style="margin-bottom:12px">
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Hipotensión"><span class="check-label">Hipotensión</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Hipertensión"><span class="check-label">Hipertensión</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Bradicardia"><span class="check-label">Bradicardia</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Taquicardia"><span class="check-label">Taquicardia</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Arritmia"><span class="check-label">Arritmia</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="PCR intraoperatoria"><span class="check-label">PCR</span></label>
+      </div>
+      <div class="drug-section-title">Respiratorias</div>
+      <div class="check-grid" style="margin-bottom:12px">
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Laringoespasmo"><span class="check-label">Laringoespasmo</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Broncoespasmo"><span class="check-label">Broncoespasmo</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Desaturación"><span class="check-label">Desaturación</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Hipercapnia"><span class="check-label">Hipercapnia</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Edema pulmonar"><span class="check-label">Edema pulmonar</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Neumotórax"><span class="check-label">Neumotórax</span></label>
+      </div>
+      <div class="drug-section-title">Vía aérea</div>
+      <div class="check-grid" style="margin-bottom:12px">
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="VAD no prevista"><span class="check-label">VAD no prevista</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Intubación esofágica"><span class="check-label">Intub. esofágica</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Intubación endobronquial"><span class="check-label">Intub. endobronquial</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Extubación accidental"><span class="check-label">Extub. accidental</span></label>
+      </div>
+      <div class="drug-section-title">Metabólicas / Otras</div>
+      <div class="check-grid" style="margin-bottom:12px">
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Anafilaxia"><span class="check-label">Anafilaxia</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Hipertermia maligna"><span class="check-label">Hipert. maligna</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Hipotermia (<35°C)"><span class="check-label">Hipotermia</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Despertar intraoperatorio"><span class="check-label">Despertar intraop.</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="NVPO"><span class="check-label">NVPO</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Toxicidad AL sistémica"><span class="check-label">Toxicidad AL</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Sangrado >500 ml"><span class="check-label">Sangrado >500 ml</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Sangrado >1000 ml"><span class="check-label">Sangrado >1 L</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Transfusión"><span class="check-label">Transfusión</span></label>
+        <label class="check-item danger"><input type="checkbox" class="comp-check" value="Convulsiones"><span class="check-label">Convulsiones</span></label>
+      </div>
+      <label class="check-item ok">
+        <input type="checkbox" class="comp-check" value="Sin complicaciones">
+        <span class="check-label">✓ Sin complicaciones</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header collapsible"><span>🏠 Destino y notas</span><span class="chevron">▼</span></div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Destino al alta quirúrgica</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="destino" value="URPA"><span>URPA</span></label>
+          <label class="radio-pill"><input type="radio" name="destino" value="UCI/REA"><span>UCI / REA</span></label>
+          <label class="radio-pill"><input type="radio" name="destino" value="Planta"><span>Planta</span></label>
+          <label class="radio-pill"><input type="radio" name="destino" value="Domicilio (CMA)"><span>Domicilio</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Rescates analgésicos postoperatorios</label>
+        <div class="drug-section rescates-farmacos" style="margin-bottom:0">
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Morfina</label><input type="text" class="drug-dose" placeholder="mg (total)" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo</label><input type="text" class="drug-dose" placeholder="mcg (total)" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tramadol</label><input type="text" class="drug-dose" placeholder="mg (total)" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dolantina</label><input type="text" class="drug-dose" placeholder="mg (total)" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Otro rescate</label><input type="text" class="drug-dose" placeholder="fármaco · mg" hidden></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notas / Incidencias</label>
+        <textarea id="notas" name="notas" placeholder="Observaciones relevantes del caso…" rows="4"></textarea>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-evolucion -->
+
+  </main>
+
+  <footer class="app-footer">
+    <button class="btn btn-primary btn-full" id="btn-registrar">✓ Registrar caso</button>
+  </footer>
+
+</div><!-- /screen-form -->
+
+<div id="toast"></div>
+<script src="js/config.js?v=9"></script>
+<script src="js/stats.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>
