@@ -63,6 +63,8 @@ function insertarCaso(d) {
     hr.setFontWeight('bold').setBackground('#0f3460').setFontColor('#ffffff');
     sheet.setFrozenRows(1);
     sheet.setColumnWidth(1, 60);
+    // Forzar columna A (Nº Caso) como texto para preservar ceros iniciales (001, 002…)
+    sheet.getRange('A:A').setNumberFormat('@');
   }
 
   // Helper para convertir booleanos del JS a "Sí" / ""
@@ -110,9 +112,15 @@ function eliminarCaso(numCaso) {
   var sheet = getSheet();
   var lastRow = sheet.getLastRow();
 
+  // Normaliza ambos lados para comparar: "001" == 1 == "1"
+  function norm(v) {
+    var s = String(v).trim();
+    return /^\d+$/.test(s) ? String(parseInt(s, 10)) : s;
+  }
+  var buscado = norm(numCaso);
+
   for (var i = lastRow; i >= 2; i--) {
-    var celda = String(sheet.getRange(i, 1).getValue()).trim();
-    if (celda === String(numCaso).trim()) {
+    if (norm(sheet.getRange(i, 1).getValue()) === buscado) {
       sheet.deleteRow(i);
       return respuesta({ ok: true, eliminado: numCaso, fila: i });
     }
@@ -130,3 +138,4 @@ function respuesta(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
