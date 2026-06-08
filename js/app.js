@@ -356,10 +356,11 @@ function fillForm(data) {
     }
   });
 
-  // ─ AG drugs
+  // ─ AG drugs (inducción ahora incluye opioides y relajantes — para casos viejos
+  //   también buscamos en la sección unificada)
   fillDrugs(data.induccion,     'ag-induccion');
-  fillDrugs(data.opioides,      'ag-opioides');
-  fillDrugs(data.relajantes,    'ag-relajantes');
+  fillDrugs(data.opioides,      'ag-induccion');
+  fillDrugs(data.relajantes,    'ag-induccion');
   fillDrugs(data.mantenimiento, 'ag-mantenimiento');
   fillDrugs(data.reversores,    'ag-reversores');
 
@@ -578,10 +579,10 @@ function collectData() {
     especialidad: get('especialidad'), procedimiento: get('procedimiento'),
     urgencia: get('urgencia'), posicion: get('posicion'),
     tipoAnestesia,
-    // AG drugs
+    // AG drugs — opioides y relajantes ahora se recogen dentro de 'ag-induccion'
     induccion:     drugs('ag-induccion'),
-    opioides:      drugs('ag-opioides'),
-    relajantes:    drugs('ag-relajantes'),
+    opioides:      '',
+    relajantes:    '',
     mantenimiento: drugs('ag-mantenimiento'),
     reversores:    drugs('ag-reversores'),
     // Regional (combined text for Sheets)
