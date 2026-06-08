@@ -1,7 +1,7 @@
 // ============================================================
-// REGISTRO ANESTESIA — Google Apps Script v4
+// REGISTRO ANESTESIA — Google Apps Script v5
 // Soporta: insertar casos (action: 'insert') y eliminar (action: 'delete')
-// Cada técnica regional va a su propia columna para análisis.
+// AG: una sola columna "AG — Inducción" (incluye hipnóticos, opioides y relajantes).
 // ============================================================
 
 const SHEET_NAME = 'Registros';
@@ -16,8 +16,8 @@ const HEADERS = [
   'Especialidad', 'Procedimiento', 'Urgencia', 'Posición',
   // Anestesia
   'Tipo anestesia',
-  // AG
-  'AG — Inducción', 'AG — Opioides', 'AG — Relajantes', 'AG — Mantenimiento', 'AG — Reversores',
+  // AG (inducción incluye hipnóticos, opioides y relajantes)
+  'AG — Inducción', 'AG — Mantenimiento', 'AG — Reversores',
   // Espinal
   'Espinal — Nivel', 'Espinal — Aguja', 'Espinal — Posición', 'Espinal — Fármacos',
   // Epidural
@@ -50,7 +50,7 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  return respuesta({ status: 'API activa — Registro Anestesia v4' });
+  return respuesta({ status: 'API activa — Registro Anestesia v5' });
 }
 
 // ── INSERT ────────────────────────────────────────────────
@@ -80,8 +80,9 @@ function insertarCaso(d) {
     d.especialidad || '', d.procedimiento || '', d.urgencia || '', d.posicion || '',
     // Anestesia
     d.tipoAnestesia || '',
-    // AG
-    d.induccion || '', d.opioides || '', d.relajantes || '', d.mantenimiento || '', d.reversores || '',
+    // AG (inducción combina todo lo enviado en induccion/opioides/relajantes)
+    [d.induccion, d.opioides, d.relajantes].filter(Boolean).join('; '),
+    d.mantenimiento || '', d.reversores || '',
     // Espinal
     d.espinalNivel || '', d.espinalAguja || '', d.espinalPos || '', d._espinalDrugs || '',
     // Epidural
@@ -128,6 +129,62 @@ function eliminarCaso(numCaso) {
   return respuesta({ ok: false, error: 'Caso ' + numCaso + ' no encontrado' });
 }
 
+// ── MIGRACIÓN (ejecutar UNA VEZ desde el editor) ──────────
+// Combina las columnas "AG — Inducción", "AG — Opioides" y "AG — Relajantes"
+// en una sola columna "AG — Inducción" y elimina las otras dos.
+function migrarAG() {
+  var sheet = getSheet();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 1) {
+    SpreadsheetApp.getUi().alert('La hoja está vacía. No hay nada que migrar.');
+    return;
+  }
+
+  // 1. Localiza columnas por su cabecera
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var idxInduccion  = headers.indexOf('AG — Inducción')   + 1;
+  var idxOpioides   = headers.indexOf('AG — Opioides')    + 1;
+  var idxRelajantes = headers.indexOf('AG — Relajantes')  + 1;
+
+  if (!idxInduccion) {
+    SpreadsheetApp.getUi().alert('No se encuentra la columna "AG — Inducción". Revisa la cabecera.');
+    return;
+  }
+  if (!idxOpioides && !idxRelajantes) {
+    SpreadsheetApp.getUi().alert('Las columnas "AG — Opioides" y "AG — Relajantes" ya no existen. Migración no necesaria.');
+    return;
+  }
+
+  // 2. Para cada fila de datos, combina los 3 valores en la columna Inducción
+  if (lastRow >= 2) {
+    for (var r = 2; r <= lastRow; r++) {
+      var ind = idxInduccion ? String(sheet.getRange(r, idxInduccion).getValue() || '').trim() : '';
+      var opi = idxOpioides  ? String(sheet.getRange(r, idxOpioides).getValue()  || '').trim() : '';
+      var rel = idxRelajantes? String(sheet.getRange(r, idxRelajantes).getValue()|| '').trim() : '';
+
+      var combinado = [ind, opi, rel].filter(function(x){ return x; }).join('; ');
+      sheet.getRange(r, idxInduccion).setValue(combinado);
+    }
+  }
+
+  // 3. Elimina las columnas, empezando por la de mayor índice para no descuadrar
+  var aEliminar = [];
+  if (idxRelajantes) aEliminar.push(idxRelajantes);
+  if (idxOpioides)   aEliminar.push(idxOpioides);
+  aEliminar.sort(function(a, b){ return b - a; }); // descendente
+
+  aEliminar.forEach(function(idx){
+    sheet.deleteColumn(idx);
+  });
+
+  SpreadsheetApp.getUi().alert(
+    '✓ Migración completada\n\n' +
+    '• ' + (lastRow - 1) + ' fila(s) procesada(s)\n' +
+    '• Columnas eliminadas: ' + aEliminar.length + '\n\n' +
+    'Ya puedes desplegar el script como nueva versión.'
+  );
+}
+
 // ── HELPERS ───────────────────────────────────────────────
 function getSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -138,4 +195,3 @@ function respuesta(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
