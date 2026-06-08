@@ -180,10 +180,14 @@ function renderCaseList(filter = '') {
   if (!el) return;
 
   if (!allCases.length) {
+    const counter = parseInt(localStorage.getItem('anestesia_case_count') || '0');
     el.innerHTML = `<div class="list-empty">
       <div class="list-empty-icon">📋</div>
-      <div>Sin casos registrados aún</div>
-      <div class="text-muted" style="font-size:13px;margin-top:6px">Pulsa "＋ Registrar nuevo caso"</div>
+      <div>Sin casos registrados en este dispositivo</div>
+      <div class="text-muted" style="font-size:13px;margin-top:6px">Tus casos previos siguen guardados en Google Sheets</div>
+      <button class="btn btn-primary" style="margin-top:24px;padding:10px 18px" onclick="importFromSheets()">⬇️ Descargar casos desde Sheets</button>
+      <button class="btn btn-secondary" style="margin-top:10px;padding:10px 18px" onclick="ajustarContador()">⚙️ Solo ajustar próximo nº de caso</button>
+      <div class="text-muted" style="font-size:11px;margin-top:10px">Actualmente: próximo caso = #${String(counter + 1).padStart(3, '0')}</div>
     </div>`;
     return;
   }
@@ -757,6 +761,66 @@ function setSyncStatus(state) {
     lbl.textContent = state === 'pending' ? 'Guardando…'
       : state === 'error' ? 'Sin conexión' : 'Sincronizado';
   });
+}
+
+// ── IMPORTAR DESDE GOOGLE SHEETS ──────────────────────────
+// Descarga todos los casos desde la hoja y los guarda localmente.
+// Útil tras reinstalar la app, cambiar de móvil o borrar datos del navegador.
+async function importFromSheets() {
+  if (!CONFIG.SHEETS_URL) {
+    showToast('Sin URL de Sheets configurada', 'warning');
+    return;
+  }
+  if (!confirm('¿Descargar todos los casos desde Google Sheets?\n\n' +
+               'Esto sustituirá los casos locales del móvil por los de la hoja.')) return;
+
+  showToast('Descargando casos…', '');
+
+  try {
+    const r = await fetch(CONFIG.SHEETS_URL + '?action=list', { method: 'GET' });
+    const json = await r.json();
+
+    if (!json.ok || !Array.isArray(json.casos)) {
+      showToast('La hoja devolvió un error', 'error');
+      return;
+    }
+
+    const casos = json.casos.map(d => ({ data: d, ts: Date.now() }));
+    localStorage.setItem('anestesia_cases', JSON.stringify(casos));
+
+    // Ajustar contador al máximo nº de caso encontrado
+    const maxNum = json.casos.reduce((m, c) => {
+      const n = parseInt(c.numCaso);
+      return isNaN(n) ? m : Math.max(m, n);
+    }, 0);
+    localStorage.setItem('anestesia_case_count', String(maxNum));
+
+    showToast(`✓ ${casos.length} caso(s) importado(s) desde Sheets`, 'success');
+    renderCaseList();
+  } catch (err) {
+    showToast('Error de conexión con Sheets', 'error');
+    console.error('importFromSheets:', err);
+  }
+}
+
+// ── AJUSTAR CONTADOR ──────────────────────────────────────
+// Permite establecer el próximo nº de caso (útil si se reinstala la app
+// o se borran los datos del navegador y los casos viejos siguen en Sheets).
+function ajustarContador() {
+  const actual = parseInt(localStorage.getItem('anestesia_case_count') || '0');
+  const respuesta = prompt(
+    `Último nº de caso ya registrado (en Google Sheets).\n\n` +
+    `Ej: si tienes casos hasta el #024, escribe 24.\n` +
+    `El próximo será el #025.`,
+    actual
+  );
+  if (respuesta === null) return;
+  const n = parseInt(respuesta);
+  if (isNaN(n) || n < 0) { showToast('Número no válido', 'warning'); return; }
+  localStorage.setItem('anestesia_case_count', String(n));
+  const next = String(n + 1).padStart(3, '0');
+  showToast(`✓ Próximo caso será #${next}`, 'success');
+  renderCaseList();
 }
 
 // ── TOAST ─────────────────────────────────────────────────
