@@ -1,6 +1,8 @@
 // ============================================================
-// REGISTRO ANESTESIA — Google Apps Script v5
-// Soporta: insertar casos (action: 'insert') y eliminar (action: 'delete')
+// REGISTRO ANESTESIA — Google Apps Script v6
+// Soporta:
+//  - POST: insertar (default) y eliminar (action: 'delete')
+//  - GET ?action=list: descarga todos los casos como JSON para la app
 // AG: una sola columna "AG — Inducción" (incluye hipnóticos, opioides y relajantes).
 // ============================================================
 
@@ -50,7 +52,85 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  return respuesta({ status: 'API activa — Registro Anestesia v5' });
+  if (e && e.parameter && e.parameter.action === 'list') {
+    return listarCasos();
+  }
+  return respuesta({ status: 'API activa — Registro Anestesia v6' });
+}
+
+// ── LIST — devuelve todos los casos en formato JSON ───────
+function listarCasos() {
+  var sheet = getSheet();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return respuesta({ ok: true, casos: [] });
+
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var rows = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+
+  // Mapeo de cabecera en Sheets → propiedad esperada por la app
+  var fieldMap = {
+    'Nº Caso': 'numCaso', 'Fecha': 'fecha', 'Hora inicio': 'horaInicio',
+    'Hora fin': 'horaFin', 'Duración (min)': 'duracion',
+    'Edad': 'edad', 'Sexo': 'sexo', 'Peso (kg)': 'peso',
+    'Talla (cm)': 'talla', 'IMC': 'imc', 'ASA': 'asa',
+    'Antecedentes': 'antecedentes', 'Alergias': 'alergias',
+    'Medicación especial / Dispositivos': 'medicacion',
+    'Especialidad': 'especialidad', 'Procedimiento': 'procedimiento',
+    'Urgencia': 'urgencia', 'Posición': 'posicion',
+    'Tipo anestesia': 'tipoAnestesia',
+    'AG — Inducción': 'induccion',
+    'AG — Mantenimiento': 'mantenimiento',
+    'AG — Reversores': 'reversores',
+    'Espinal — Nivel': 'espinalNivel',
+    'Espinal — Aguja': 'espinalAguja',
+    'Espinal — Posición': 'espinalPos',
+    'Espinal — Fármacos': '_espinalDrugs',
+    'Epidural — Nivel': 'epiduralNivel',
+    'Epidural — Aguja': 'epiduralAguja',
+    'Epidural — Catéter': '_epiduralCateterStr',
+    'Epidural — Test dosis': '_epiduralTestStr',
+    'Epidural — Fármacos': '_epiduralDrugs',
+    'Bloqueo 1 — Nervio': 'bloqueoNervio',
+    'Bloqueo 1 — Técnica': 'bloqueoTecnica',
+    'Bloqueo 1 — Catéter': '_bloqueoCateterStr',
+    'Bloqueo 1 — Fármacos': '_bloqueoDrugs',
+    'Bloqueo 2 — Nervio': 'bloqueo2Nervio',
+    'Bloqueo 2 — Técnica': 'bloqueo2Tecnica',
+    'Bloqueo 2 — Catéter': '_bloqueo2CateterStr',
+    'Bloqueo 2 — Fármacos': '_bloqueo2Drugs',
+    'Sedación — Nivel': 'sedacionNivel',
+    'Sedación — Fármacos': 'sedacion',
+    'Analgesia & Coadyuvantes': 'analgesia',
+    'Vasoactivos': 'vasoactivos',
+    'Dispositivo vía aérea': 'dispositivoVia',
+    'Técnica intubación': 'tecnicaIntubacion',
+    'Intentos': 'intentos', 'Cormack-Lehane': 'cormack', 'VAD': 'vad',
+    'Monitorización especial': 'monitorizacion',
+    'Complicaciones': 'complicaciones', 'Destino': 'destino',
+    'Rescates analgésicos postop.': 'rescates', 'Notas': 'notas',
+  };
+
+  var tz = Session.getScriptTimeZone();
+  var casos = rows.map(function(row) {
+    var caso = {};
+    headers.forEach(function(h, i) {
+      var key = fieldMap[h];
+      if (!key) return;
+      var v = row[i];
+      if (v instanceof Date) v = Utilities.formatDate(v, tz, 'yyyy-MM-dd');
+      else if (v === null || v === undefined) v = '';
+      else v = String(v);
+      caso[key] = v;
+    });
+    // Convertir "Sí" → true para los catéteres / test
+    caso.epiduralCateter = caso._epiduralCateterStr === 'Sí';
+    caso.epiduralTest    = caso._epiduralTestStr    === 'Sí';
+    caso.bloqueoCateter  = caso._bloqueoCateterStr  === 'Sí';
+    caso.bloqueo2Cateter = caso._bloqueo2CateterStr === 'Sí';
+    return caso;
+  });
+
+  return respuesta({ ok: true, casos: casos });
 }
 
 // ── INSERT ────────────────────────────────────────────────
