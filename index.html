@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Registro Anestesia</title>
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=10">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f3460">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -330,25 +330,23 @@
     <div class="technique-body">
       <div class="card-body">
         <div class="drug-section ag-induccion">
-          <div class="drug-section-title">Inducción</div>
+          <div class="drug-section-title">Inducción — Hipnóticos</div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketamina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Etomidato</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Midazolam</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tiopental</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína (inducción)</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
-        </div>
-        <div class="drug-section ag-opioides">
-          <div class="drug-section-title">Opioides sistémicos</div>
+          <div class="drug-section-title" style="margin-top:14px">Inducción — Opioides</div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo</label><input type="text" class="drug-dose" placeholder="mcg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sufentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Morfina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tramadol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Metadona</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
-        </div>
-        <div class="drug-section ag-relajantes">
-          <div class="drug-section-title">Relajantes musculares</div>
+          <div class="drug-section-title" style="margin-top:14px">Inducción — Relajantes musculares</div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Succinilcolina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Rocuronio</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Atracurio</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
@@ -360,7 +358,7 @@
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Sevoflurano</label><input type="text" class="drug-dose" placeholder="% CAM" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Desflurano</label><input type="text" class="drug-dose" placeholder="% CAM" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Isoflurano</label><input type="text" class="drug-dose" placeholder="% CAM" hidden></div>
-          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TIVA</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TIVA</label><input type="text" class="drug-dose" placeholder="mg/kg/h" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TIVA</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
@@ -634,7 +632,6 @@
           <label>Nivel de sedación</label>
           <div class="radio-group">
             <label class="radio-pill"><input type="radio" name="sedacion-nivel" value="Profunda"><span>Profunda</span></label>
-            <label class="radio-pill"><input type="radio" name="sedacion-nivel" value="Moderada"><span>Moderada</span></label>
             <label class="radio-pill"><input type="radio" name="sedacion-nivel" value="Superficial"><span>Superficial</span></label>
           </div>
         </div>
@@ -642,11 +639,15 @@
       <div class="card-body">
         <div class="drug-section sedacion-farmacos">
           <div class="drug-section-title">Fármacos sedación</div>
-          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol</label><input type="text" class="drug-dose" placeholder="mg/mcg/kg/min" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TIVA</label><input type="text" class="drug-dose" placeholder="mg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Midazolam</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexmedetomidina</label><input type="text" class="drug-dose" placeholder="mcg/kg/h" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketamina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
-          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo</label><input type="text" class="drug-dose" placeholder="mcg/kg/h" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TIVA</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Tramadol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         </div>
@@ -661,11 +662,17 @@
       <div class="drug-section otros-analgesia">
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Paracetamol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Metamizol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ibuprofeno</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketorolaco</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexketoprofeno</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Dexametasona iv</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Actocortina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ondansetrón</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Droperidol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Polaramine</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Omeprazol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Pantoprazol</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
+        <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Famotidina</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Ketamina (analgesia)</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína iv (infusión)</label><input type="text" class="drug-dose" placeholder="mg/kg/h" hidden></div>
         <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Magnesio iv</label><input type="text" class="drug-dose" placeholder="mg" hidden></div>
@@ -872,8 +879,8 @@
 </div><!-- /screen-form -->
 
 <div id="toast"></div>
-<script src="js/config.js?v=9"></script>
-<script src="js/stats.js?v=9"></script>
-<script src="js/app.js?v=9"></script>
+<script src="js/config.js?v=10"></script>
+<script src="js/stats.js?v=10"></script>
+<script src="js/app.js?v=10"></script>
 </body>
 </html>
