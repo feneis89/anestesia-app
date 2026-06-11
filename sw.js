@@ -1,11 +1,11 @@
-const CACHE_NAME = 'anestesia-v12';
+const CACHE_NAME = 'anestesia-v13';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=12',
-  './js/config.js?v=12',
-  './js/stats.js?v=12',
-  './js/app.js?v=12',
+  './css/style.css?v=13',
+  './js/config.js?v=13',
+  './js/stats.js?v=13',
+  './js/app.js?v=13',
   './manifest.json',
   './icon.svg',
 ];

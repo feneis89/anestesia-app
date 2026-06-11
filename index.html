@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Registro Anestesia</title>
-  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/style.css?v=13">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f3460">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -178,9 +178,11 @@
       <div class="form-group">
         <label>Antecedentes médicos</label>
         <div class="check-grid">
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Fumador activo"><span class="check-label">Fumador activo</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Enolismo"><span class="check-label">Enolismo</span></label>
+          <label class="check-item"><input type="checkbox" class="antec-check" value="Obesidad"><span class="check-label">Obesidad</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="HTA"><span class="check-label">HTA</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="DM"><span class="check-label">DM</span></label>
-          <label class="check-item"><input type="checkbox" class="antec-check" value="Obesidad"><span class="check-label">Obesidad</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="Cardiopatía isquémica"><span class="check-label">Cardiopatía isquémica</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="Insuficiencia cardíaca"><span class="check-label">Insuficiencia cardíaca</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="FA"><span class="check-label">FA</span></label>
@@ -189,8 +191,6 @@
           <label class="check-item"><input type="checkbox" class="antec-check" value="SAOS"><span class="check-label">SAOS</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="IRC"><span class="check-label">IRC</span></label>
           <label class="check-item"><input type="checkbox" class="antec-check" value="Ictus previo"><span class="check-label">Ictus previo</span></label>
-          <label class="check-item"><input type="checkbox" class="antec-check" value="Fumador activo"><span class="check-label">Fumador activo</span></label>
-          <label class="check-item"><input type="checkbox" class="antec-check" value="Enolismo"><span class="check-label">Enolismo</span></label>
         </div>
         <input type="text" id="antec-otros" name="antecOtros" placeholder="Otros antecedentes…" style="margin-top:8px">
       </div>
@@ -210,22 +210,37 @@
     <div class="card-header collapsible"><span>💊 Medicación especial &amp; Dispositivos</span><span class="chevron">▼</span></div>
     <div class="card-body">
       <div class="form-group">
-        <label>Anticoagulación</label>
+        <label>Anticoagulación / Antiagregación</label>
         <div class="check-grid">
-          <label class="check-item"><input type="checkbox" class="medic-check" value="Acenocumarol (Sintrom)"><span class="check-label">Acenocumarol (Sintrom)</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Acenocumarol"><span class="check-label">Acenocumarol</span></label>
           <label class="check-item"><input type="checkbox" class="medic-check" value="NACO"><span class="check-label">NACO</span></label>
-          <label class="check-item"><input type="checkbox" class="medic-check" value="HBPM terapéutica"><span class="check-label">HBPM terapéutica</span></label>
-          <label class="check-item"><input type="checkbox" class="medic-check" value="Heparina sódica iv"><span class="check-label">Heparina sódica iv</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="HBPM terapéutica"><span class="check-label">HBPM (terapéutica)</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Heparina sódica IV"><span class="check-label">Heparina sódica IV</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="AAS"><span class="check-label">AAS</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Antiagregantes"><span class="check-label">Antiagregantes</span></label>
         </div>
       </div>
       <div class="form-group">
-        <label>Antiagregación</label>
+        <label>Cardiovascular</label>
         <div class="check-grid">
-          <label class="check-item"><input type="checkbox" class="medic-check" value="AAS"><span class="check-label">AAS</span></label>
-          <label class="check-item"><input type="checkbox" class="medic-check" value="Clopidogrel"><span class="check-label">Clopidogrel</span></label>
-          <label class="check-item"><input type="checkbox" class="medic-check" value="Ticagrelor"><span class="check-label">Ticagrelor</span></label>
-          <label class="check-item"><input type="checkbox" class="medic-check" value="Prasugrel"><span class="check-label">Prasugrel</span></label>
-          <label class="check-item"><input type="checkbox" class="medic-check" value="Doble antiagregación"><span class="check-label">Doble antiagregación</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Beta-bloqueantes"><span class="check-label">Beta-bloqueantes</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="IECAS/ARA2"><span class="check-label">IECAS / ARA2</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Ca antagonistas"><span class="check-label">Ca antagonistas</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Antiarrítmicos"><span class="check-label">Antiarrítmicos</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Diuréticos"><span class="check-label">Diuréticos</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Nitratos"><span class="check-label">Nitratos</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Estatinas"><span class="check-label">Estatinas</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Endocrino / Otros</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Antidiabéticos orales"><span class="check-label">Antidiabéticos orales</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Insulina"><span class="check-label">Insulina</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Corticoides"><span class="check-label">Corticoides</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Inmunosupresores"><span class="check-label">Inmunosupresores</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Broncodilatadores"><span class="check-label">Broncodilatadores</span></label>
+          <label class="check-item"><input type="checkbox" class="medic-check" value="Psicofármacos"><span class="check-label">Psicofármacos</span></label>
         </div>
       </div>
       <div class="form-group">
@@ -362,6 +377,7 @@
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Propofol TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TIVA</label><input type="text" class="drug-dose" placeholder="mcg/kg/min" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Remifentanilo TCI</label><input type="text" class="drug-dose" placeholder="ng/ml" hidden></div>
+          <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Fentanilo (mantenimiento)</label><input type="text" class="drug-dose" placeholder="mcg" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">Lidocaína (mantenimiento)</label><input type="text" class="drug-dose" placeholder="mg/kg/h" hidden></div>
           <div class="drug-item"><label class="drug-check-label"><input type="checkbox">N₂O</label><input type="text" class="drug-dose" placeholder="%" hidden></div>
         </div>
@@ -755,6 +771,10 @@
             <label class="radio-pill"><input type="radio" name="cormack" value="III"><span>III</span></label>
             <label class="radio-pill"><input type="radio" name="cormack" value="IV"><span>IV</span></label>
           </div>
+          <label class="check-item" style="display:inline-flex;margin-top:8px">
+            <input type="checkbox" id="cormack-burp">
+            <span class="check-label">Maniobra BURP</span>
+          </label>
         </div>
       </div>
       <div class="form-group">
@@ -775,9 +795,13 @@
         <label class="check-item"><input type="checkbox" class="monit-check" value="BIS / Entropía"><span class="check-label">BIS / Entropía</span></label>
         <label class="check-item"><input type="checkbox" class="monit-check" value="TOF cuantitativo"><span class="check-label">TOF cuantitativo</span></label>
         <label class="check-item"><input type="checkbox" class="monit-check" value="Temperatura"><span class="check-label">Temperatura</span></label>
-        <label class="check-item"><input type="checkbox" class="monit-check" value="Arterial invasiva"><span class="check-label">Arterial invasiva</span></label>
-        <label class="check-item"><input type="checkbox" class="monit-check" value="CVC"><span class="check-label">CVC</span></label>
-        <label class="check-item"><input type="checkbox" class="monit-check" value="PVC"><span class="check-label">PVC</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Sondaje vesical"><span class="check-label">Sondaje vesical</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="CVC yugular interna"><span class="check-label">CVC yugular interna</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="CVC subclavia"><span class="check-label">CVC subclavia</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="CVC femoral"><span class="check-label">CVC femoral</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Arterial radial"><span class="check-label">Arterial radial</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Arterial humeral"><span class="check-label">Arterial humeral</span></label>
+        <label class="check-item"><input type="checkbox" class="monit-check" value="Arterial femoral"><span class="check-label">Arterial femoral</span></label>
         <label class="check-item"><input type="checkbox" class="monit-check" value="Ecocardiografía ETE"><span class="check-label">ETE</span></label>
         <label class="check-item"><input type="checkbox" class="monit-check" value="NIRS cerebral"><span class="check-label">NIRS cerebral</span></label>
         <label class="check-item"><input type="checkbox" class="monit-check" value="PiCCO"><span class="check-label">PiCCO</span></label>
@@ -879,8 +903,8 @@
 </div><!-- /screen-form -->
 
 <div id="toast"></div>
-<script src="js/config.js?v=12"></script>
-<script src="js/stats.js?v=12"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/config.js?v=13"></script>
+<script src="js/stats.js?v=13"></script>
+<script src="js/app.js?v=13"></script>
 </body>
 </html>
