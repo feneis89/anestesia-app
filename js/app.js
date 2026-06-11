@@ -405,7 +405,15 @@ function fillForm(data) {
   setVal('dispositivo-via',     data.dispositivoVia);
   setVal('tecnica-intubacion',  data.tecnicaIntubacion);
   setRadio('intentos', data.intentos);
-  setRadio('cormack',  data.cormack);
+  // El cormack puede venir como "IIA + BURP" — separar grado y maniobra
+  if (data.cormack) {
+    const cormackStr = String(data.cormack);
+    const hasBurp = cormackStr.includes('BURP');
+    const grado = cormackStr.replace(/\s*\+?\s*BURP\s*/i, '').trim();
+    setRadio('cormack', grado);
+    const burpCb = document.getElementById('cormack-burp');
+    if (burpCb) burpCb.checked = hasBurp;
+  }
   setChecks('input[name="vad"]', data.vad);
   // Trigger airway conditional visibility
   if (['TOT oral','TOT nasal','Tubo doble luz','Awake FOI','Traqueotomía'].includes(data.dispositivoVia)) {
@@ -617,7 +625,8 @@ function collectData() {
     // Airway
     dispositivoVia:    get('dispositivo-via'),
     tecnicaIntubacion: get('tecnica-intubacion'),
-    intentos: radio('intentos'), cormack: radio('cormack'),
+    intentos: radio('intentos'),
+    cormack: radio('cormack') + (document.getElementById('cormack-burp')?.checked ? ' + BURP' : ''),
     vad: checks('vad'),
     monitorizacion: Array.from(document.querySelectorAll('.monit-check:checked')).map(c => c.value).join(', '),
     complicaciones: Array.from(document.querySelectorAll('.comp-check:checked')).map(c => c.value).join(', '),

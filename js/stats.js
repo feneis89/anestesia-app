@@ -155,21 +155,41 @@ function renderTOTChart(cases) {
 // ── MONITORIZACIÓN INVASIVA ───────────────────────────────
 function renderInvasiveMonChart(cases) {
   const counters = {
-    'Línea arterial': 0,
-    'Vía central (CVC)': 0,
-    'PVC': 0,
+    'Línea arterial (cualquiera)': 0,
+    '  ↳ Radial':   0,
+    '  ↳ Humeral':  0,
+    '  ↳ Femoral':  0,
+    'CVC (cualquiera)': 0,
+    '  ↳ Yugular interna': 0,
+    '  ↳ Subclavia': 0,
+    '  ↳ Femoral CVC': 0,
     'BIS / Entropía': 0,
     'TOF cuantitativo': 0,
     'Ecocardiografía ETE': 0,
+    'Sondaje vesical': 0,
   };
   cases.forEach(c => {
     const m = (c.data.monitorizacion || '');
-    if (m.includes('Arterial invasiva')) counters['Línea arterial']++;
-    if (m.includes('CVC'))               counters['Vía central (CVC)']++;
-    if (m.includes('PVC'))               counters['PVC']++;
-    if (m.includes('BIS'))               counters['BIS / Entropía']++;
-    if (m.includes('TOF'))               counters['TOF cuantitativo']++;
-    if (m.includes('ETE'))               counters['Ecocardiografía ETE']++;
+    const hasRadial   = m.includes('Arterial radial');
+    const hasHumeral  = m.includes('Arterial humeral');
+    const hasFemArt   = m.includes('Arterial femoral');
+    if (hasRadial)  counters['  ↳ Radial']++;
+    if (hasHumeral) counters['  ↳ Humeral']++;
+    if (hasFemArt)  counters['  ↳ Femoral']++;
+    if (hasRadial || hasHumeral || hasFemArt) counters['Línea arterial (cualquiera)']++;
+
+    const hasYug    = m.includes('CVC yugular');
+    const hasSub    = m.includes('CVC subclavia');
+    const hasFemCvc = m.includes('CVC femoral');
+    if (hasYug)    counters['  ↳ Yugular interna']++;
+    if (hasSub)    counters['  ↳ Subclavia']++;
+    if (hasFemCvc) counters['  ↳ Femoral CVC']++;
+    if (hasYug || hasSub || hasFemCvc) counters['CVC (cualquiera)']++;
+
+    if (m.includes('BIS'))             counters['BIS / Entropía']++;
+    if (m.includes('TOF'))             counters['TOF cuantitativo']++;
+    if (m.includes('ETE'))             counters['Ecocardiografía ETE']++;
+    if (m.includes('Sondaje vesical')) counters['Sondaje vesical']++;
   });
   const items = Object.entries(counters).filter(([, n]) => n > 0);
   renderBar('chart-monitorizacion', items, '#00695c');
